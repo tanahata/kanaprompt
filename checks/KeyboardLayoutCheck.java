@@ -121,6 +121,27 @@ public class KeyboardLayoutCheck {
         equal(k.press("かな", 0), null);
         equal(k.getRows().get(3).get(1), "゛小");
         equal(k.press("つ", 0), "つ");
+        String[] modifierActions = {"゛小", "濁点", "小文字", "半濁点", ""};
+        for (int i=0; i<5; i++) equal(k.press("゛小", i), modifierActions[i]);
+        equal(DakutenConverter.INSTANCE.options("つ"), java.util.List.of("", "づ", "っ", "", ""));
+        equal(DakutenConverter.INSTANCE.options("は"), java.util.List.of("", "ば", "", "ぱ", ""));
+        String[] bases = {"は", "ひ", "ふ", "へ", "ほ"};
+        String[] semis = {"ぱ", "ぴ", "ぷ", "ぺ", "ぽ"};
+        String[] voiced = {"ば", "び", "ぶ", "べ", "ぼ"};
+        for (int i=0; i<5; i++) {
+            for (String source : new String[]{bases[i], voiced[i], semis[i]}) {
+                equal(DakutenConverter.INSTANCE.direct(source, "半濁点"), semis[i]);
+                equal(DakutenConverter.INSTANCE.direct(source, "濁点"), voiced[i]);
+            }
+        }
+        equal(DakutenConverter.INSTANCE.direct("っ", "濁点"), "づ");
+        equal(DakutenConverter.INSTANCE.direct("づ", "小文字"), "っ");
+        equal(DakutenConverter.INSTANCE.direct("う", "濁点"), "ゔ");
+        equal(DakutenConverter.INSTANCE.direct("あ", "半濁点"), null);
+        for (String unsupported : new String[]{"", "😀", "a", "。", "漢"}) {
+            equal(DakutenConverter.INSTANCE.options(unsupported), java.util.List.of("", "", "", "", ""));
+            equal(DakutenConverter.INSTANCE.convert(unsupported), null);
+        }
         String ch = "つ";
         for (String want : new String[]{"っ","づ","つ"}) {
             ch = DakutenConverter.INSTANCE.convert(ch); equal(ch, want);

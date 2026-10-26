@@ -103,6 +103,7 @@ class KeyboardLayout {
     // Ordered as center, left, up, right, down.
     // Kana punctuation: Android.com's Gboard guide. Numeric bottom row: device observation.
     private val symbolMaps = mapOf(
+        "゛小" to listOf("゛小", "濁点", "小文字", "半濁点", ""),
         "、。" to listOf("、", "。", "？", "！", "…"),
         "()[]" to listOf("(", ")", "[", "]", ""),
         "0" to listOf("0", "〜", "…", "@", ""),

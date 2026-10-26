@@ -13,7 +13,7 @@ import android.view.Gravity
 import android.widget.PopupWindow
 import kotlin.math.abs
 
-class KanaKeyboardView(context: Context, private val emit: (String) -> Unit) : View(context) {
+class KanaKeyboardView(context: Context, private val previousKana: () -> String?, private val emit: (String) -> Unit) : View(context) {
     private val layout = KeyboardLayout()
     private val rows get() = layout.rows
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -42,7 +42,11 @@ class KanaKeyboardView(context: Context, private val emit: (String) -> Unit) : V
 
     private fun showPreview(row: Int, column: Int) {
         hidePreview()
-        val options = layout.options(rows[row][column]) ?: return
+        val key = rows[row][column]
+        val options = if (key == "゛小") {
+            DakutenConverter.options(previousKana() ?: "")
+        } else layout.options(key) ?: return
+        if (options.all { it.isEmpty() }) return
         if (windowToken == null) return
         val size = (60 * d).toInt()
         val bubble = object : View(context) {

@@ -7,7 +7,7 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.EditorInfo
 
 class KanaFlickImeService : InputMethodService() {
-    override fun onCreateInputView(): View = KanaKeyboardView(this) { action ->
+    override fun onCreateInputView(): View = KanaKeyboardView(this, { currentInputConnection?.let { previousKana(it) } }) { action ->
         val ic: InputConnection = currentInputConnection ?: return@KanaKeyboardView
         when (action) {
             "左全削除" -> {
@@ -28,7 +28,8 @@ class KanaFlickImeService : InputMethodService() {
             }
             "◀" -> moveCursor(ic, -1)
             "▶" -> moveCursor(ic, 1)
-            "゛小" -> cyclePreviousKana(ic)
+            "゛小" -> replacePreviousKana(ic, "゛小")
+            "濁点", "半濁点", "小文字" -> replacePreviousKana(ic, action)
             else -> ic.commitText(action, 1)
         }
     }
@@ -53,14 +54,17 @@ class KanaFlickImeService : InputMethodService() {
         } else flags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
     }
 
-    private fun cyclePreviousKana(ic: InputConnection) {
-        // Only transform the character immediately before the caret; do not alter a selection.
-        val selected = ic.getSelectedText(0)
-        if (!selected.isNullOrEmpty()) return
-        val before = ic.getTextBeforeCursor(2, 0)?.toString() ?: return
-        if (before.isEmpty()) return
-        val previous = before.last().toString()
-        val replacement = DakutenConverter.convert(previous) ?: return
+    private fun previousKana(ic: InputConnection): String? {
+        if (!ic.getSelectedText(0).isNullOrEmpty()) return null
+        return ic.getTextBeforeCursor(2, 0)?.lastOrNull()?.toString()
+    }
+
+    private fun replacePreviousKana(ic: InputConnection, action: String) {
+        // Read the editor again on release; previews never cache editor text.
+        val previous = previousKana(ic) ?: return
+        val replacement = if (action == "゛小") DakutenConverter.convert(previous)
+            else DakutenConverter.direct(previous, action)
+        if (replacement == null || replacement == previous) return
         ic.beginBatchEdit()
         try {
             ic.deleteSurroundingTextInCodePoints(1, 0)
