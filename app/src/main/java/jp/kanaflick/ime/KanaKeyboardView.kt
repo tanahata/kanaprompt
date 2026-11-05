@@ -3,7 +3,6 @@ package jp.kanaflick.ime
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Path
 import android.graphics.Paint
 import android.graphics.RectF
@@ -17,6 +16,12 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
     private val layout = KeyboardLayout()
     private val rows get() = layout.rows
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val iconPath = Path()
+    private val iconBounds = RectF()
+    private val previewOffsets = listOf(0f to 0f, -18f to 0f, 0f to -18f, 18f to 0f, 0f to 18f)
+    private val utilityKeys = setOf("左全削除", "◀", "▶", "あ1", "かな", "あa", "⇧", "⇪", "⌫", "空白", "↵", "?123", "ABC", "=\\<")
+    private val iconKeys = setOf("⇧", "⇪", "↵", "⌫", "左全削除")
+    private val boldKeys = setOf("?123", "ABC", "=\\<")
     private val colors get() = KeyboardTheme.forNight(
         resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     )
@@ -53,13 +58,14 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
             private val ink = Paint(Paint.ANTI_ALIAS_FLAG)
             override fun onDraw(canvas: Canvas) {
                 val cx = width / 2f; val cy = height / 2f
-                ink.color = colors.key
+                val palette = colors
+                ink.color = palette.key
                 canvas.drawCircle(cx, cy, 28*d, ink)
                 if (direction != 0) {
                     // Gboard's directional preview replaces the five-way guide.
                     val char = options[direction]
                     if (char.isNotEmpty()) {
-                        ink.color = colors.text
+                        ink.color = palette.text
                         ink.textAlign = Paint.Align.CENTER
                         ink.textSize = 32*d
                         ink.isFakeBoldText = false
@@ -67,15 +73,14 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
                     }
                     return
                 }
-                val offsets = listOf(0f to 0f, -18f to 0f, 0f to -18f, 18f to 0f, 0f to 18f)
                 options.forEachIndexed { index, char ->
                     if (char.isEmpty()) return@forEachIndexed
-                    val (dx, dy) = offsets[index]
+                    val (dx, dy) = previewOffsets[index]
                     val x = cx + dx*d; val y = cy + dy*d
                     val selected = index == direction
-                    ink.color = if (selected) colors.pressed else colors.key
+                    ink.color = if (selected) palette.pressed else palette.key
                     canvas.drawCircle(x, y, (if (index == 0) 11 else 8)*d, ink)
-                    ink.color = colors.text
+                    ink.color = palette.text
                     ink.textAlign = Paint.Align.CENTER
                     ink.textSize = (if (index == 0) 21 else 13)*d
                     ink.isFakeBoldText = selected
@@ -147,36 +152,39 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), ((layout.keyAreaHeightDp + 48 + 8)*d).toInt())
     }
     override fun onDraw(canvas: Canvas) {
-        canvas.drawColor(colors.background)
+        val palette = colors
+        canvas.drawColor(palette.background)
+        val pressedKey = pressed
         val rh = keyAreaHeight / 4f
         rows.forEachIndexed { r, row -> row.forEachIndexed { c, label ->
             val left = layout.keyStart(r, c) * width
             val cw = layout.keyWidth(r, c) * width
-            val selected = pressed == (r to c) || layout.isShiftActive(label)
-            paint.color = if (selected) colors.pressed else if (label in listOf("左全削除", "◀", "▶", "あ1", "かな", "あa", "⇧", "⇪", "⌫", "空白", "↵", "?123", "ABC", "=\\<")) colors.utility else colors.key
-            canvas.drawRoundRect(RectF(left+gap/2,topPadding+r*rh+gap/2,left+cw-gap/2,topPadding+(r+1)*rh-gap/2), 8*d,8*d,paint)
-            paint.color=if (label in listOf("あa", "↵")) colors.accent else colors.text
+            val selected = (pressedKey != null && pressedKey.first == r && pressedKey.second == c) || layout.isShiftActive(label)
+            val display = layout.displayLabel(label)
+            paint.color = if (selected) palette.pressed else if (label in utilityKeys) palette.utility else palette.key
+            canvas.drawRoundRect(left+gap/2, topPadding+r*rh+gap/2, left+cw-gap/2, topPadding+(r+1)*rh-gap/2, 8*d, 8*d, paint)
+            paint.color=if (label in listOf("あa", "↵")) palette.accent else palette.text
             paint.textAlign=Paint.Align.CENTER
-            paint.textSize=(if (layout.displayLabel(label).length>2) 13 else 22)*d
+            paint.textSize=(if (display.length>2) 13 else 22)*d
             val cx = left + cw/2
             val cy = topPadding + (r+.5f)*rh
-            if (label in listOf("⇧", "⇪", "↵", "⌫", "左全削除") || layout.displayLabel(label) == "␣") {
+            if (label in iconKeys || display == "␣") {
                 drawActionIcon(canvas, label, cx, cy)
             } else {
-                paint.isFakeBoldText = label in listOf("?123", "ABC", "=\\<")
-                canvas.drawText(layout.displayLabel(label),cx,cy-(paint.ascent()+paint.descent())/2,paint)
+                paint.isFakeBoldText = label in boldKeys
+                canvas.drawText(display,cx,cy-(paint.ascent()+paint.descent())/2,paint)
                 paint.isFakeBoldText = false
             }
         }}
         // Identity stays in the existing non-interactive bottom margin.
-        paint.color = colors.accent
+        paint.color = palette.accent
         paint.textSize = 11*d
         paint.textAlign = Paint.Align.CENTER
         val signatureY = topPadding + keyAreaHeight + 24*d
         val title = context.getString(R.string.app_name)
         canvas.drawText(title, width/2f + 10*d, signatureY-(paint.ascent()+paint.descent())/2, paint)
         val markX = width/2f - paint.measureText(title)/2 - 8*d
-        canvas.drawRoundRect(RectF(markX-8*d, signatureY-1.5f*d, markX+8*d, signatureY+1.5f*d), 1.5f*d, 1.5f*d, paint)
+        canvas.drawRoundRect(markX-8*d, signatureY-1.5f*d, markX+8*d, signatureY+1.5f*d, 1.5f*d, 1.5f*d, paint)
     }
     /** Fixed dp outlines avoid font-dependent sizes for Shift lock and Enter. */
     private fun drawActionIcon(canvas: Canvas, key: String, cx: Float, cy: Float) {
@@ -187,7 +195,7 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
         paint.strokeWidth = 2.2f
         paint.strokeJoin = Paint.Join.ROUND
         paint.strokeCap = Paint.Cap.ROUND
-        val path = Path()
+        val path = iconPath.apply { reset() }
         if (key == "⌫" || key == "左全削除") {
             val dx = 0f
             path.moveTo(-4f + dx, -8f)
@@ -234,9 +242,8 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
             }
         }
         if (key == "⌫" || key == "左全削除") {
-            val bounds = RectF()
-            path.computeBounds(bounds, true)
-            canvas.translate(-bounds.centerX(), -bounds.centerY())
+            path.computeBounds(iconBounds, true)
+            canvas.translate(-iconBounds.centerX(), -iconBounds.centerY())
         }
         canvas.drawPath(path, paint)
         paint.style = Paint.Style.FILL

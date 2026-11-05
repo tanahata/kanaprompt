@@ -11,19 +11,26 @@ class KeyboardLayout {
         get() = if (alphabetic) when (symbols) {
             1 -> symbolRows
             2 -> extraSymbolRows
-            else -> qwertyRows
+            else -> when (shift) {
+                1 -> shiftedQwertyRows
+                2 -> capsQwertyRows
+                else -> qwertyRows
+            }
         } else if (numeric) numberRows else kanaRows
 
-    private val qwertyRows: List<List<String>>
-        get() {
-            fun letters(value: String) = value.map { if (shift != 0) it.uppercase() else it.toString() }
-            return listOf(
-                letters("qwertyuiop"),
-                letters("asdfghjkl"),
-                listOf(if (shift == 2) "⇪" else "⇧") + letters("zxcvbnm") + "⌫",
-                listOf("あa", ",", "?123", "空白", ".", "↵")
-            )
-        }
+    private fun createQwertyRows(uppercase: Boolean, caps: Boolean): List<List<String>> {
+        fun letters(value: String) = value.map { if (uppercase) it.uppercase() else it.toString() }
+        return listOf(
+            letters("qwertyuiop"),
+            letters("asdfghjkl"),
+            listOf(if (caps) "⇪" else "⇧") + letters("zxcvbnm") + "⌫",
+            listOf("あa", ",", "?123", "空白", ".", "↵")
+        )
+    }
+
+    private val qwertyRows = createQwertyRows(uppercase = false, caps = false)
+    private val shiftedQwertyRows = createQwertyRows(uppercase = true, caps = false)
+    private val capsQwertyRows = createQwertyRows(uppercase = true, caps = true)
 
     // Gboard English (US), observed on the user's device on 2026-10-21.
     private val symbolRows = listOf(
@@ -53,29 +60,31 @@ class KeyboardLayout {
         else -> key
     }
 
-    fun isShiftActive(key: String): Boolean = key in listOf("⇧", "⇪") && shift != 0
+    fun isShiftActive(key: String): Boolean = (key == "⇧" || key == "⇪") && shift != 0
 
-    private fun weights(row: Int): List<Float> {
-        val keys = rows[row]
-        return when {
-            alphabetic && row == 2 -> listOf(1.5f) + List(7) { 1f } + 1.5f
-            alphabetic && row == 3 -> listOf(1.5f, 1f, 1f, 4f, 1f, 1.5f)
-            else -> List(keys.size) { 1f }
-        }
-    }
+    // The two weighted QWERTY rows each total 10 units.
+    private val qwertyShiftWeights = floatArrayOf(1.5f, 1f, 1f, 1f, 1f, 1f, 1f, 1f, 1.5f)
+    private val qwertyBottomWeights = floatArrayOf(1.5f, 1f, 1f, 4f, 1f, 1.5f)
+    private fun weights(row: Int): FloatArray? = if (alphabetic) when (row) {
+        2 -> qwertyShiftWeights
+        3 -> qwertyBottomWeights
+        else -> null
+    } else null
 
     /** Normalized bounds shared by drawing and touch hit testing. */
     fun keyStart(row: Int, column: Int): Float {
-        val weights = weights(row)
         // Gboard US home row: nine 1/10-width keys, inset by half a key.
         if (alphabetic && symbols == 0 && row == 1) return (0.5f + column) / 10f
-        return weights.take(column).sum() / weights.sum()
+        val weights = weights(row) ?: return column.toFloat() / rows[row].size
+        var left = 0f
+        for (i in 0 until column) left += weights[i]
+        return left / 10f
     }
 
     fun keyWidth(row: Int, column: Int): Float {
-        val weights = weights(row)
         if (alphabetic && symbols == 0 && row == 1) return 0.1f
-        return weights[column] / weights.sum()
+        val weights = weights(row) ?: return 1f / rows[row].size
+        return weights[column] / 10f
     }
 
     fun keyIndex(row: Int, x: Float): Int = rows[row].indices.firstOrNull {
