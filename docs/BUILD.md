@@ -18,6 +18,10 @@ IMEには通常のActivityがありません。インストール後、Android�
 java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" checks/KeyboardLayoutCheck.java
 ```
 
+## GitHubでの自動検査
+
+プルリクエストとmainへのpushで、GitHub Actionsがdebug/releaseビルド、両lint、既存のKeyboardLayoutCheckを実行します。CIはAPKの公開署名・配布や実機操作を行いません。実機確認の範囲は[検証記録](TESTING.md)を参照してください。
+
 ## 署名
 
 公開APKはreleaseビルドを旧版と同じ証明書で署名しています。旧開発版との更新互換性を優先しているため、証明書の名義はAndroid Debugです。APK自体はdebuggableではありません。これはGoogle Play向けの新規署名設計ではありません。
