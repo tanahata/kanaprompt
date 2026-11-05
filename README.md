@@ -55,6 +55,8 @@ Gboardを参考にした配列・表示がありますが、Googleと関係の�
 ## 開発・ライセンス
 
 - [ビルド手順](docs/BUILD.md)
+- [実機検証の範囲と制限](docs/TESTING.md)
+- [lint警告と対応方針](docs/LINT.md)
 - [変更履歴](CHANGELOG.md)
 - [MIT License](LICENSE)
 - [第三者ソフトウェア](THIRD_PARTY.md)
