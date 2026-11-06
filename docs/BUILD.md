@@ -12,15 +12,16 @@ IMEには通常のActivityがありません。インストール後、Android�
 
 ## 回帰チェック
 
-ビルド後、Javaのソース起動でchecks/KeyboardLayoutCheck.javaを実行します。クラスパスにapp/build/tmp/kotlin-classes/debugとKotlin stdlib 2.0.21のJARを指定してください。
+ビルド後、Javaのソース起動で配列・モード切替用の `checks/KeyboardLayoutCheck.java` と、カーソル移動用の `checks/CursorMovementCheck.java` を実行します。クラスパスに `app/build/tmp/kotlin-classes/debug` とKotlin stdlib 2.0.21のJARを指定してください。
 
 ```sh
 java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" checks/KeyboardLayoutCheck.java
+java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" checks/CursorMovementCheck.java
 ```
 
 ## GitHubでの自動検査
 
-プルリクエストとmainへのpushで、GitHub Actionsがdebug/releaseビルド、両lint、既存のKeyboardLayoutCheckを実行します。CIはAPKの公開署名・配布や実機操作を行いません。実機確認の範囲は[検証記録](TESTING.md)を参照してください。
+プルリクエストとmainへのpushで、GitHub Actionsがdebug/releaseビルド、両lint、KeyboardLayoutCheckとCursorMovementCheckを実行します。CIはAPKの公開署名・配布や実機操作を行いません。実機確認の範囲は[検証記録](TESTING.md)を参照してください。
 
 ## 署名
 
