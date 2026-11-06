@@ -287,9 +287,13 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
                     return true
                 }
                 val dx=event.getX(i)-startX; val dy=event.getY(i)-startY
-                direction=if(maxOf(abs(dx),abs(dy))<12*d) 0 else if(abs(dx)>abs(dy)) { if(dx<0) 1 else 3 } else { if(dy<0) 2 else 4 }
-                previewView?.invalidate()
-                invalidate(); return true
+                val newDirection=if(maxOf(abs(dx),abs(dy))<12*d) 0 else if(abs(dx)>abs(dy)) { if(dx<0) 1 else 3 } else { if(dy<0) 2 else 4 }
+                if (newDirection != direction) {
+                    direction = newDirection
+                    previewView?.invalidate()
+                    invalidate()
+                }
+                return true
             }
             MotionEvent.ACTION_POINTER_UP -> {
                 if (event.getPointerId(event.actionIndex) == pointer) {
@@ -304,9 +308,7 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
                 hidePreview()
                 val p=pressed; if(p!=null && event.getPointerId(event.actionIndex)==pointer) {
                     val key=rows[p.first][p.second]
-                    val previousHeight = layout.keyAreaHeightDp
                     val value = layout.press(key, direction)
-                    if (layout.keyAreaHeightDp != previousHeight) requestLayout()
                     if (key !in listOf("⌫", "左全削除") && !value.isNullOrEmpty()) emit(value)
                 }
                 pressed=null; pointer=-1; invalidate(); return true
