@@ -2,13 +2,26 @@
 
 PR #5 の製品コードには含めず、別ブランチで検証します。入力欄は合成文字だけを使います。インターネット権限・入力本文の保存・送信はありません。IMEのデバッグログも製品へ追加しません。
 
+## Macでの事前確認
+
+- MacにJDK 21、Android SDK 35、`adb`が利用できる状態で、USB接続したAndroidが`adb devices`に`device`と表示されること。認証待ちの`unauthorized`では試験できません。
+- 事前にPR #5のソースを使って、**従来と同じ署名鍵で署名した試験用KanaPrompt APK**をMac側で準備してください。公開版v1.0.3への再インストール記録があるため、端末上のIMEがPR #5の試験ビルドであることを確認してから実行します。公開版とPR #5はversionCodeが同じなので、設定画面の版番号のみでは区別できません。
+- 検証用ホストは製品APKとは別パッケージです。専用の署名鍵やユーザー情報をGitHubへ登録する必要はありません。
+
+```sh
+git fetch origin
+git switch test/offset-extraction-probe-20261107
+git pull --ff-only
+adb devices
+java -version
+```
+
+未コミットの作業がMac側にある場合は、`git switch`を無理に実行せず、その作業を先に保護してください。
+
 ## ビルドと起動（Mac + Android）
 
 ```sh
-./gradlew -p checks/offset-probe --no-daemon assembleDebug
-apk=$(find checks/offset-probe/build/outputs/apk/debug -name '*-debug.apk' -print -quit)
-adb install -r "$apk"
-adb shell am start -n jp.kanaflick.offsetprobe/.ProbeActivity
+bash checks/offset-probe/start-on-device.sh
 ```
 
 IMEをPR #5の試験版KanaPromptに切り替えてください。公開v1.0.3を試しただけでは補正コードの検証になりません。
