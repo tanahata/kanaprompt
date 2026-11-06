@@ -28,3 +28,5 @@ jobs:
           test -n "$jar"
           java -cp "app/build/tmp/kotlin-classes/debug:$jar" checks/KeyboardLayoutCheck.java
           java -cp "app/build/tmp/kotlin-classes/debug:$jar" checks/CursorMovementCheck.java
+      - name: Build disposable partial-extraction probe (test branch only)
+        run: ./gradlew -p checks/offset-probe --no-daemon assembleDebug
