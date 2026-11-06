@@ -77,13 +77,8 @@ class KanaFlickImeService : InputMethodService() {
     private fun moveCursor(ic: InputConnection, offset: Int) {
         val extracted = ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0) ?: return
         if (extracted.selectionStart != extracted.selectionEnd) return
-        val pos = extracted.selectionStart
         val text = extracted.text ?: return
-        val next = if (offset < 0 && pos > 0) {
-            pos - Character.charCount(Character.codePointBefore(text, pos))
-        } else if (offset > 0 && pos < text.length) {
-            pos + Character.charCount(Character.codePointAt(text, pos))
-        } else return
+        val next = CursorMovement.nextPosition(text, extracted.selectionStart, extracted.startOffset, offset) ?: return
         ic.setSelection(next, next)
     }
 }
