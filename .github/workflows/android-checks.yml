@@ -16,7 +16,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: gradle
       - name: Build and lint
         run: ./gradlew --no-daemon :app:assembleDebug :app:assembleRelease :app:lintDebug :app:lintRelease
       - name: Keyboard layout regression
