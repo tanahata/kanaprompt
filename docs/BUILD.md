@@ -19,9 +19,9 @@ java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" 
 java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" checks/CursorMovementCheck.java
 ```
 
-## GitHubでの自動検査
+## GitHubでの任意検査
 
-プルリクエストとmainへのpushで、GitHub Actionsがdebug/releaseビルド、両lint、KeyboardLayoutCheckとCursorMovementCheckを実行します。CIはAPKの公開署名・配布や実機操作を行いません。実機確認の範囲は[検証記録](TESTING.md)を参照してください。
+GitHub Actionsはpush・PR更新では自動実行しません。必要性が明確なときだけActions画面から手動で `Android checks` を実行します。通常はMacのローカル環境でGradleビルド・lint・回帰チェックを行い、実施できなかった項目は未検証と記録します。手動実行時もArtifactはアップロードせず、Gradleキャッシュを保存しません。CIはAPKの公開署名・配布や実機操作を行いません。実機確認の範囲は[検証記録](TESTING.md)を参照してください。
 
 ## 署名
 
