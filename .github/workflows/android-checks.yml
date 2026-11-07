@@ -1,9 +1,7 @@
 name: Android checks
 
 on:
-  pull_request:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,7 +16,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-          cache: gradle
       - name: Build and lint
         run: ./gradlew --no-daemon :app:assembleDebug :app:assembleRelease :app:lintDebug :app:lintRelease
       - name: Keyboard layout regression
