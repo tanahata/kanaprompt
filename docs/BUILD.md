@@ -28,7 +28,7 @@ GitHub Actionsはpush・PR更新では自動実行しません。必要性が明
 PR #5のコード上の識別子は`jp.kanaprompt.ime`、IMEサービスは`KanaPromptImeService`、版番号は1.0.5（22）へ更新済み。ただし、**実機で24件を検証したローカルAPKは旧識別子の別ビルド**です。現PRをそのままマージ・公開しないでください。
 
 1. Macで`git status --short`を確認し、未コミット作業と`releases/v1.0.5/`の旧候補APK・ソースZIP・SHA256SUMSを保護する。
-2. ローカルの試験済み候補版が持つ文頭左・文末右の境界修正を`app/src/main/java/jp/kanaprompt/ime/CursorMovement.kt`へ反映し、試験済みソースとGitHubを照合する。
+2. `app/src/main/java/jp/kanaprompt/ime/CursorMovement.kt`に反映済みの文頭左・文末右の境界ガードが、Macで試験したローカル候補版の修正と一致するか差分照合する。
 3. 新パッケージでローカルビルド・両lint・該当回帰チェックを実行する。APKのpackageが`jp.kanaprompt.ime`、版番号が1.0.5／22、IMEサービスが`jp.kanaprompt.ime.KanaPromptImeService`であることを確認する。
 4. 新APKを旧版とは別アプリとして実機に導入。設定から新KanaPromptを有効化・選択し、かな入力・削除・カーソル・IME切替を確認する。旧`jp.kanaflick.ime`は新IMEの動作を確認するまでは削除しない。旧版と新規版は同名で並ぶ可能性がある。
 5. 差分を確認してPR #5をマージ。診断専用PR #6は製品にマージしない。新パッケージのAPKを既存証明書で署名し、マージしたソースに対応するZIPとSHA256SUMSを生成・照合してv1.0.5 GitHub Releaseへ公開。旧識別子で署名したローカルAPKは流用しない。
