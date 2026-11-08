@@ -1,4 +1,4 @@
-package jp.kanaflick.ime
+package jp.kanaprompt.ime
 
 import java.text.BreakIterator
 import java.util.Locale

@@ -1,4 +1,4 @@
-package jp.kanaflick.ime
+package jp.kanaprompt.ime
 
 import android.content.Context
 import android.content.res.Configuration

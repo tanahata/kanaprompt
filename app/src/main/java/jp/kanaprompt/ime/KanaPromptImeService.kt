@@ -1,4 +1,4 @@
-package jp.kanaflick.ime
+package jp.kanaprompt.ime
 
 import android.inputmethodservice.InputMethodService
 import android.view.View
@@ -6,7 +6,7 @@ import android.content.res.Configuration
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.EditorInfo
 
-class KanaFlickImeService : InputMethodService() {
+class KanaPromptImeService : InputMethodService() {
     override fun onCreateInputView(): View = KanaKeyboardView(this, { currentInputConnection?.let { previousKana(it) } }) { action ->
         val ic: InputConnection = currentInputConnection ?: return@KanaKeyboardView
         when (action) {

@@ -1,4 +1,4 @@
-package jp.kanaflick.ime
+package jp.kanaprompt.ime
 
 /** Mint Sign palette; follows the system appearance without storing preferences. */
 data class KeyboardTheme(

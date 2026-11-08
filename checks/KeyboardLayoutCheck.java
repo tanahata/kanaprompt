@@ -1,5 +1,5 @@
-import jp.kanaflick.ime.KeyboardLayout;
-import jp.kanaflick.ime.DakutenConverter;
+import jp.kanaprompt.ime.KeyboardLayout;
+import jp.kanaprompt.ime.DakutenConverter;
 
 public class KeyboardLayoutCheck {
     static void equal(Object actual, Object expected) {

@@ -1,4 +1,4 @@
-import jp.kanaflick.ime.CursorMovement;
+import jp.kanaprompt.ime.CursorMovement;
 
 public class CursorMovementCheck {
     private static void equal(Integer actual, Integer expected) {
