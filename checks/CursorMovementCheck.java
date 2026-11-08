@@ -27,6 +27,18 @@ public class CursorMovementCheck {
         equal(cursor.nextPosition("あ", 2, 10, -1), null);
         equal(cursor.nextPosition("あ", 0, -1, 1), null);
         equal(cursor.nextPosition("あ", 0, 10, 0), null);
-        System.out.println("PASS: cursor movement with extraction offsets, emoji, and boundaries");
+        // One visual emoji can contain several Unicode code points.
+        String[] emojis = {"😂", "👍🏽", "🇯🇵", "👩‍💻", "👨‍👩‍👧‍👦"};
+        int[] codePoints = {1, 2, 2, 3, 7};
+        for (int i = 0; i < emojis.length; i++) {
+            String sample = "あ" + emojis[i] + "い";
+            int emojiEnd = 1 + emojis[i].length();
+            equal(cursor.nextPosition(sample, 1, 0, 1), emojiEnd);
+            equal(cursor.nextPosition(sample, emojiEnd, 0, -1), 1);
+            equal(cursor.nextPosition(sample, 1, 100, 1), 100 + emojiEnd);
+            equal(cursor.previousCharacterCodePoints(sample.substring(0, emojiEnd)), codePoints[i]);
+        }
+        equal(cursor.previousCharacterCodePoints(""), null);
+        System.out.println("PASS: extracted offsets, grapheme-aware emoji movement and deletion");
     }
 }
