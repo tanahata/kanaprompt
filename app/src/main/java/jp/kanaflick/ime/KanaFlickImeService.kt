@@ -11,8 +11,10 @@ class KanaFlickImeService : InputMethodService() {
         val ic: InputConnection = currentInputConnection ?: return@KanaKeyboardView
         when (action) {
             "左全削除" -> {
-                if (ic.getSelectedText(0).isNullOrEmpty()) {
-                    // Delete through the editor to the beginning; leave text to the right intact.
+                // Never delete when the editor cannot confirm a collapsed selection.
+                val selection = ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
+                if (selection != null && selection.selectionStart >= 0 &&
+                    selection.selectionStart == selection.selectionEnd) {
                     ic.deleteSurroundingText(Int.MAX_VALUE, 0)
                 }
             }
