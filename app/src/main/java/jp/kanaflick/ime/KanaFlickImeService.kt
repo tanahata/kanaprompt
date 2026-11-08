@@ -23,7 +23,10 @@ class KanaFlickImeService : InputMethodService() {
                     // Replace the selection with nothing; surrounding deletion skips it.
                     ic.commitText("", 1)
                 } else {
-                    ic.deleteSurroundingTextInCodePoints(1, 0)
+                    // A visual character may contain several Unicode code points.
+                    val before = ic.getTextBeforeCursor(64, 0)
+                    val count = before?.let { CursorMovement.previousCharacterCodePoints(it) } ?: 1
+                    ic.deleteSurroundingTextInCodePoints(count, 0)
                 }
             }
             "空白" -> ic.commitText(" ", 1)
