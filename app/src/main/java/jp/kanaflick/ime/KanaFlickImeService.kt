@@ -16,7 +16,14 @@ class KanaFlickImeService : InputMethodService() {
                     ic.deleteSurroundingText(Int.MAX_VALUE, 0)
                 }
             }
-            "⌫" -> ic.deleteSurroundingTextInCodePoints(1, 0)
+            "⌫" -> {
+                if (ic.getSelectedText(0)?.isNotEmpty() == true) {
+                    // Replace the selection with nothing; surrounding deletion skips it.
+                    ic.commitText("", 1)
+                } else {
+                    ic.deleteSurroundingTextInCodePoints(1, 0)
+                }
+            }
             "空白" -> ic.commitText(" ", 1)
             "↵" -> {
                 val info = currentInputEditorInfo
