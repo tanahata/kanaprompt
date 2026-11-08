@@ -1,4 +1,4 @@
-package jp.kanaflick.ime
+package jp.kanaprompt.ime
 
 /** Cycles a single, already committed kana character. */
 object DakutenConverter {

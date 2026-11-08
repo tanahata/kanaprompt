@@ -24,3 +24,4 @@ jobs:
           jar=$(find "$HOME/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/2.0.21" -name 'kotlin-stdlib-2.0.21.jar' -type f -print -quit)
           test -n "$jar"
           java -cp "app/build/tmp/kotlin-classes/debug:$jar" checks/KeyboardLayoutCheck.java
+          java -cp "app/build/tmp/kotlin-classes/debug:$jar" checks/CursorMovementCheck.java

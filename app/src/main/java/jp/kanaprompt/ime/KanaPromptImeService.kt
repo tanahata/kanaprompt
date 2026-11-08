@@ -1,4 +1,4 @@
-package jp.kanaflick.ime
+package jp.kanaprompt.ime
 
 import android.inputmethodservice.InputMethodService
 import android.view.View
@@ -6,17 +6,29 @@ import android.content.res.Configuration
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.EditorInfo
 
-class KanaFlickImeService : InputMethodService() {
+class KanaPromptImeService : InputMethodService() {
     override fun onCreateInputView(): View = KanaKeyboardView(this, { currentInputConnection?.let { previousKana(it) } }) { action ->
         val ic: InputConnection = currentInputConnection ?: return@KanaKeyboardView
         when (action) {
             "左全削除" -> {
-                if (ic.getSelectedText(0).isNullOrEmpty()) {
-                    // Delete through the editor to the beginning; leave text to the right intact.
+                // Never delete when the editor cannot confirm a collapsed selection.
+                val selection = ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0)
+                if (selection != null && selection.selectionStart >= 0 &&
+                    selection.selectionStart == selection.selectionEnd) {
                     ic.deleteSurroundingText(Int.MAX_VALUE, 0)
                 }
             }
-            "⌫" -> ic.deleteSurroundingTextInCodePoints(1, 0)
+            "⌫" -> {
+                if (ic.getSelectedText(0)?.isNotEmpty() == true) {
+                    // Replace the selection with nothing; surrounding deletion skips it.
+                    ic.commitText("", 1)
+                } else {
+                    // A visual character may contain several Unicode code points.
+                    val before = ic.getTextBeforeCursor(64, 0)
+                    val count = before?.let { CursorMovement.previousCharacterCodePoints(it) } ?: 1
+                    ic.deleteSurroundingTextInCodePoints(count, 0)
+                }
+            }
             "空白" -> ic.commitText(" ", 1)
             "↵" -> {
                 val info = currentInputEditorInfo
@@ -77,13 +89,8 @@ class KanaFlickImeService : InputMethodService() {
     private fun moveCursor(ic: InputConnection, offset: Int) {
         val extracted = ic.getExtractedText(android.view.inputmethod.ExtractedTextRequest(), 0) ?: return
         if (extracted.selectionStart != extracted.selectionEnd) return
-        val pos = extracted.selectionStart
         val text = extracted.text ?: return
-        val next = if (offset < 0 && pos > 0) {
-            pos - Character.charCount(Character.codePointBefore(text, pos))
-        } else if (offset > 0 && pos < text.length) {
-            pos + Character.charCount(Character.codePointAt(text, pos))
-        } else return
+        val next = CursorMovement.nextPosition(text, extracted.selectionStart, extracted.startOffset, offset) ?: return
         ic.setSelection(next, next)
     }
 }

@@ -1,4 +1,4 @@
-package jp.kanaflick.ime
+package jp.kanaprompt.ime
 
 /** Kana/numeric grids and a tap-only QWERTY grid share the same height. */
 class KeyboardLayout {
