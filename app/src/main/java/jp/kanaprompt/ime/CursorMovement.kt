@@ -10,6 +10,9 @@ internal object CursorMovement {
 
     fun nextPosition(text: CharSequence, selectionStart: Int, startOffset: Int, direction: Int): Int? {
         if (startOffset < 0 || selectionStart < 0 || selectionStart > text.length) return null
+        // Explicitly stop at the extracted text boundaries on all JDK/Android runtimes.
+        if ((direction == -1 && selectionStart == 0) ||
+            (direction == 1 && selectionStart == text.length)) return null
         val iterator = breaks(text)
         val next = when (direction) {
             -1 -> iterator.preceding(selectionStart)
