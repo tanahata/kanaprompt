@@ -22,6 +22,7 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
     private val utilityKeys = setOf("左全削除", "◀", "▶", "あ1", "かな", "あa", "⇧", "⇪", "⌫", "空白", "↵", "?123", "ABC", "=\\<")
     private val iconKeys = setOf("⇧", "⇪", "↵", "⌫", "左全削除")
     private val boldKeys = setOf("?123", "ABC", "=\\<")
+    private val cursorKeys = setOf("◀", "▶")
     private val colors get() = KeyboardTheme.forNight(
         resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
     )
@@ -36,6 +37,7 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
     private var pointer = -1
     private var startX = 0f; private var startY = 0f
     private var direction = 0 // center left up right down
+    private var cursorRepeated = false
     private var preview: PopupWindow? = null
     private var previewView: View? = null
 
@@ -121,13 +123,25 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
         }
     }
 
-    private fun stopDeleteRepeat() {
+    private val cursorRepeat = object : Runnable {
+        override fun run() {
+            val p = pressed ?: return
+            val key = rows[p.first][p.second]
+            if (key !in cursorKeys || pointer == -1) return
+            cursorRepeated = true
+            emit(key)
+            postDelayed(this, 65L)
+        }
+    }
+
+    private fun stopHoldActions() {
         removeCallbacks(deleteRepeat)
         removeCallbacks(deleteLeftHold)
+        removeCallbacks(cursorRepeat)
     }
 
     override fun onDetachedFromWindow() {
-        stopDeleteRepeat()
+        stopHoldActions()
         hidePreview()
         pressed = null
         pointer = -1
@@ -137,7 +151,7 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
     override fun onWindowVisibilityChanged(visibility: Int) {
         super.onWindowVisibilityChanged(visibility)
         if (visibility != VISIBLE) {
-            stopDeleteRepeat()
+            stopHoldActions()
             hidePreview()
             pressed = null
             pointer = -1
@@ -253,9 +267,9 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when(event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                stopDeleteRepeat()
+                stopHoldActions()
                 hidePreview()
-                pointer=event.getPointerId(0); startX=event.x; startY=event.y; direction=0
+                pointer=event.getPointerId(0); startX=event.x; startY=event.y; direction=0; cursorRepeated=false
                 if (event.x < 0 || event.x >= width || event.y < topPadding || event.y >= topPadding + keyAreaHeight) { pressed=null; invalidate(); return true }
                 val r=((event.y-topPadding)/(keyAreaHeight/4f)).toInt().coerceIn(0,3)
                 val c=layout.keyIndex(r, event.x/width)
@@ -267,6 +281,8 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
                     postDelayed(deleteRepeat, 400L)
                 } else if (rows[r][c] == "左全削除") {
                     postDelayed(deleteLeftHold, 350L)
+                } else if (rows[r][c] in cursorKeys) {
+                    postDelayed(cursorRepeat, 400L)
                 }
                 invalidate(); return true
             }
@@ -274,13 +290,13 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
                 if (event.getPointerId(event.actionIndex) != pointer && event.pointerCount == 1) return true
                 val i=event.findPointerIndex(pointer); if(i<0) return true
                 val p = pressed
-                if (p != null && rows[p.first][p.second] in listOf("⌫", "左全削除")) {
+                if (p != null && rows[p.first][p.second] in listOf("⌫", "左全削除", "◀", "▶")) {
                     val x = event.getX(i); val y = event.getY(i)
                     val left = layout.keyStart(p.first, p.second) * width
                     val right = left + layout.keyWidth(p.first, p.second) * width
                     val top = topPadding + p.first * keyAreaHeight / 4f
                     if (x < left || x >= right || y < top || y >= top + keyAreaHeight / 4f) {
-                        stopDeleteRepeat()
+                        stopHoldActions()
                         pressed = null
                         invalidate()
                     }
@@ -297,23 +313,23 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
             }
             MotionEvent.ACTION_POINTER_UP -> {
                 if (event.getPointerId(event.actionIndex) == pointer) {
-                    stopDeleteRepeat()
+                    stopHoldActions()
                     hidePreview()
                     pressed=null; pointer=-1; invalidate()
                 }
                 return true
             }
             MotionEvent.ACTION_UP -> {
-                stopDeleteRepeat()
+                stopHoldActions()
                 hidePreview()
                 val p=pressed; if(p!=null && event.getPointerId(event.actionIndex)==pointer) {
                     val key=rows[p.first][p.second]
                     val value = layout.press(key, direction)
-                    if (key !in listOf("⌫", "左全削除") && !value.isNullOrEmpty()) emit(value)
+                    if (key !in listOf("⌫", "左全削除") && !(key in cursorKeys && cursorRepeated) && !value.isNullOrEmpty()) emit(value)
                 }
                 pressed=null; pointer=-1; invalidate(); return true
             }
-            MotionEvent.ACTION_CANCEL -> { stopDeleteRepeat(); hidePreview(); pressed=null; pointer=-1; invalidate(); return true }
+            MotionEvent.ACTION_CANCEL -> { stopHoldActions(); hidePreview(); pressed=null; pointer=-1; invalidate(); return true }
         }
         return true
     }
