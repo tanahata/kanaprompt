@@ -51,7 +51,7 @@ Releasesの最新バージョンにある `.apk` ファイルをダウンロー�
 
 ## 互換性と既知の制限
 
-v1.0.5（公開準備中）から、Androidの識別子を `jp.kanaprompt.ime`、IMEサービスを `KanaPromptImeService` に統一します。v1.0.3以前の識別子 `jp.kanaflick.ime` とは**別アプリ**になるため、旧版への上書き更新はできません。新しいAPKをインストールした後、Androidの設定で新しいKanaPromptを有効化・選択し、入力できることを確認してから、旧版を必要に応じて削除してください。両方をインストールしている間は、設定に同名のキーボードが表示される場合があります。v1.0.5はまだGitHub Release未公開です。
+v1.0.5（2026-11-08公開）から、Androidの識別子を `jp.kanaprompt.ime`、IMEサービスを `KanaPromptImeService` に統一しました。v1.0.3以前の `jp.kanaflick.ime` とは**別アプリ**のため、旧版への上書き更新はできません。[v1.0.5のAPK](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.5)をインストールし、Androidの設定で新しいKanaPromptを有効化・選択して入力を確認してから、旧版を必要に応じて削除してください。両方のインストール中は同名のキーボードが表示される場合があります。AQUOS R9 Pro（Android 16）では新IMEの有効化・選択と基本入力を確認済みです。
 
 実機確認は主にAQUOS R9 proで行っています。すべての端末や入力先アプリを網羅したものではありません。TalkBackによるキーごとの操作など、アクセシビリティには未整備の部分があります。文字の選択情報や周辺文字を取得できない入力欄では、一部の削除・カーソル操作が使えない場合があります。
 

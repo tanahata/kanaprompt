@@ -23,20 +23,15 @@ java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" 
 
 GitHub Actionsはpush・PR更新では自動実行しません。必要性が明確なときだけActions画面から手動で `Android checks` を実行します。通常はMacのローカル環境でGradleビルド・lint・回帰チェックを行い、実施できなかった項目は未検証と記録します。手動実行時もArtifactはアップロードせず、Gradleキャッシュを保存しません。CIはAPKの公開署名・配布や実機操作を行いません。実機確認の範囲は[検証記録](TESTING.md)を参照してください。
 
-## v1.0.5 公開前の整合確認（2026-11-08）
+## v1.0.5 公開・移行の確認記録（2026-11-08）
 
-PR #5のコード上の識別子は`jp.kanaprompt.ime`、IMEサービスは`KanaPromptImeService`、版番号は1.0.5（22）へ更新済み。ただし、**実機で24件を検証したローカルAPKは旧識別子の別ビルド**です。現PRをそのままマージ・公開しないでください。
+- [v1.0.5 Release](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.5)は公開済み。PR #5を`main`へマージし、新しい`applicationId=jp.kanaprompt.ime`、IMEサービス`jp.kanaprompt.ime.KanaPromptImeService`、版番号`versionName=1.0.5`／`versionCode=22`を採用。
+- 公開APKはタグに対応するソースからビルドし、既存の署名証明書で署名。Macでdebug/releaseビルド、両lint、KeyboardLayoutCheck・CursorMovementCheckに成功。AQUOS R9 Pro（Android 16）で新IMEの導入・有効化・選択・かな入力・削除・カーソルを確認しました。
+- APK、対応するソースZIPとSHA256SUMSをReleaseへ登録。公開時のGitHub Actionsは不使用。
+- v1.0.3以前の`jp.kanaflick.ime`とは別アプリとして共存可能で、上書き更新はできません。新IMEを有効化・選択し、入力確認後に旧版を必要に応じて削除してください。ユーザーは新KanaPromptでの通常入力を確認し、重複する旧KanaFlickを手動削除済みです。
+- 旧識別子のローカルv1.0.5候補版については[検証記録](TESTING.md)に24件の局所検証履歴を保持しています。新識別子版で24件すべてを再実行したという意味ではありません。
 
-1. Macで`git status --short`を確認し、未コミット作業と`releases/v1.0.5/`の旧候補APK・ソースZIP・SHA256SUMSを保護する。
-2. `app/src/main/java/jp/kanaprompt/ime/CursorMovement.kt`に反映済みの文頭左・文末右の境界ガードが、Macで試験したローカル候補版の修正と一致するか差分照合する。
-3. 新パッケージでローカルビルド・両lint・該当回帰チェックを実行する。APKのpackageが`jp.kanaprompt.ime`、版番号が1.0.5／22、IMEサービスが`jp.kanaprompt.ime.KanaPromptImeService`であることを確認する。
-4. 新APKを旧版とは別アプリとして実機に導入。設定から新KanaPromptを有効化・選択し、かな入力・削除・カーソル・IME切替を確認する。旧`jp.kanaflick.ime`は新IMEの動作を確認するまでは削除しない。旧版と新規版は同名で並ぶ可能性がある。
-5. 差分を確認してPR #5をマージ。診断専用PR #6は製品にマージしない。新パッケージのAPKを既存証明書で署名し、マージしたソースに対応するZIPとSHA256SUMSを生成・照合してv1.0.5 GitHub Releaseへ公開。旧識別子で署名したローカルAPKは流用しない。
-6. 公開後にReleaseのAPK・ソースZIP・SHA256SUMSと`releases/latest`を確認する。Actionsは手動専用のまま。
-
-IME画面のバージョン番号表示は追加しない。Androidのアプリ情報でバージョンを確認できるためです。
-
-公開操作を行っていない段階ではv1.0.5を公開済みと記載せず、署名鍵や個人的な入力内容をコミットしない。
+以降の更新時も`git status --short`で未コミット差分を保護し、実際の署名APK・タグ付きソース・ZIP・SHA256SUMSの整合性を確認してから配布してください。診断用PR #6のコードは製品にマージしません。IME画面へバージョン番号は表示せず、Androidのアプリ情報で確認します。
 
 ## 署名
 

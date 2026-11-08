@@ -1,14 +1,15 @@
 # 変更履歴
 
-## v1.0.5 — カーソル・削除操作の精度改善（公開準備中／2026-11-08検証）
+## v1.0.5 — カーソル・削除操作の精度改善、内部名称統一（2026-11-08公開）
 
 - `ExtractedText.startOffset`を考慮してカーソル移動先を補正。検証用入力欄が返す`startOffset=100`で左右移動を確認。
 - 左右カーソルキーの長押し連続移動に対応。指を離す、キー外へ動かす、操作を取り消す場合は反復を停止。
 - 選択範囲があるときの⌫は選択文字列を削除。左全削除は選択位置を確認できない場合に実行しない。独自のUndoや入力履歴は追加しない。
 - 複合絵文字（肌色修飾・国旗・ZWJ・家族絵文字）を見た目の1文字単位で移動・削除。フリック中の不要な再描画と固定高さの無効な処理も整理。
 - 内部名称をKanaPromptへ統一。アプリID・Kotlinパッケージ・namespaceを`jp.kanaprompt.ime`、IMEサービスを`KanaPromptImeService`、Gradleプロジェクト名を`KanaPrompt`へ変更。`versionName=1.0.5`／`versionCode=22`に設定。旧版とは別アプリとしてインストールされます。
-- **変更前のローカル候補版**はMacのdebug/releaseビルド、両lint、回帰チェックとAQUOS R9 Pro（Android 16）で24件の局所検証に成功。名称変更後のAPKはまだ未ビルド・未実機検証。詳細は[検証記録](docs/TESTING.md)を参照。
-- **公開前に要対応**：文頭左・文末右を無操作とする境界ガードはGitHubへ反映済み。ローカルの試験済みソースと差分照合し、新しい識別子でビルド・署名・実機のIME有効化と入力を確認してからマージ・タグ・配布する。v1.0.5はまだGitHub Release未公開。
+- **旧識別子のローカル候補版**はMacのdebug/releaseビルド、両lint、回帰チェックとAQUOS R9 Pro（Android 16）で24件の局所検証に成功。この24件を新識別子版での合格とはみなしません。
+- **公開版**はタグ付けしたソースからビルド・署名し、Macでdebug/releaseビルド、lint、キーボード・カーソル回帰チェックを実施。AQUOS R9 Proで新しいIMEのインストール・有効化・選択、かな入力・削除・カーソル移動を確認して[GitHub Release v1.0.5](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.5)を公開。GitHub Actionsは実行していません。
+- 公開後、ユーザーは新しいKanaPromptでChatGPTへ入力できることと現時点で使用上の問題がないことを確認。重複していた旧KanaFlickは手動で削除済み。詳細は[検証記録](docs/TESTING.md)を参照。
 
 ## v1.0.3 — lint警告の整理と入力欄別の実機検証（2026-11-06）
 
