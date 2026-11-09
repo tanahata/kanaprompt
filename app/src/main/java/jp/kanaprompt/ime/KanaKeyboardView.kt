@@ -63,6 +63,11 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
                 val palette = colors
                 ink.color = palette.key
                 canvas.drawCircle(cx, cy, 28*d, ink)
+                ink.style = Paint.Style.STROKE
+                ink.color = palette.outline
+                ink.strokeWidth = 1f*d
+                canvas.drawCircle(cx, cy, 28*d, ink)
+                ink.style = Paint.Style.FILL
                 if (direction != 0) {
                     // Gboard's directional preview replaces the five-way guide.
                     val char = options[direction]
@@ -80,9 +85,15 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
                     val (dx, dy) = previewOffsets[index]
                     val x = cx + dx*d; val y = cy + dy*d
                     val selected = index == direction
+                    val radius = (if (index == 0) 11 else 8)*d
                     ink.color = if (selected) palette.pressed else palette.key
-                    canvas.drawCircle(x, y, (if (index == 0) 11 else 8)*d, ink)
-                    ink.color = palette.text
+                    canvas.drawCircle(x, y, radius, ink)
+                    ink.style = Paint.Style.STROKE
+                    ink.strokeWidth = 0.8f*d
+                    ink.color = palette.outline
+                    canvas.drawCircle(x, y, radius, ink)
+                    ink.style = Paint.Style.FILL
+                    ink.color = if (selected) palette.pressedText else palette.text
                     ink.textAlign = Paint.Align.CENTER
                     ink.textSize = (if (index == 0) 21 else 13)*d
                     ink.isFakeBoldText = selected
@@ -176,8 +187,23 @@ class KanaKeyboardView(context: Context, private val previousKana: () -> String?
             val selected = (pressedKey != null && pressedKey.first == r && pressedKey.second == c) || layout.isShiftActive(label)
             val display = layout.displayLabel(label)
             paint.color = if (selected) palette.pressed else if (label in utilityKeys) palette.utility else palette.key
-            canvas.drawRoundRect(left+gap/2, topPadding+r*rh+gap/2, left+cw-gap/2, topPadding+(r+1)*rh-gap/2, 8*d, 8*d, paint)
-            paint.color=if (label in listOf("あa", "↵")) palette.accent else palette.text
+            val keyLeft = left+gap/2
+            val keyTop = topPadding+r*rh+gap/2
+            val keyRight = left+cw-gap/2
+            val keyBottom = topPadding+(r+1)*rh-gap/2
+            canvas.drawRoundRect(keyLeft, keyTop, keyRight, keyBottom, 8*d, 8*d, paint)
+            if (!selected) {
+                paint.style = Paint.Style.STROKE
+                paint.strokeWidth = 1f*d
+                paint.color = palette.outline
+                canvas.drawRoundRect(keyLeft, keyTop, keyRight, keyBottom, 8*d, 8*d, paint)
+                paint.style = Paint.Style.FILL
+            }
+            paint.color = when {
+                selected -> palette.pressedText
+                label in listOf("あa", "↵") -> palette.accent
+                else -> palette.text
+            }
             paint.textAlign=Paint.Align.CENTER
             paint.textSize=(if (display.length>2) 13 else 22)*d
             val cx = left + cw/2

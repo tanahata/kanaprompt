@@ -1,21 +1,25 @@
 package jp.kanaprompt.ime
 
-/** Mint Sign palette; follows the system appearance without storing preferences. */
+/** Yamabuki palette. Appearance follows the system; no settings are stored. */
 data class KeyboardTheme(
     val background: Int,
     val key: Int,
     val utility: Int,
     val text: Int,
     val accent: Int,
-    val pressed: Int
+    val pressed: Int,
+    val pressedText: Int,
+    val outline: Int
 ) {
     companion object {
         fun forNight(night: Boolean): KeyboardTheme = if (night) {
-            KeyboardTheme(0xFF202523.toInt(), 0xFF343D38.toInt(), 0xFF2C342F.toInt(),
-                0xFFE4EEE7.toInt(), 0xFF9DDBBE.toInt(), 0xFF345949.toInt())
+            KeyboardTheme(0xFF201D18.toInt(), 0xFF39342D.toInt(), 0xFF514532.toInt(),
+                0xFFF7F0E7.toInt(), 0xFFF5C76E.toInt(), 0xFFF5C76E.toInt(),
+                0xFF29231B.toInt(), 0xFFB0A28C.toInt())
         } else {
-            KeyboardTheme(0xFFE6E9E6.toInt(), 0xFFFCFDFB.toInt(), 0xFFD4DCD7.toInt(),
-                0xFF26362F.toInt(), 0xFF206A55.toInt(), 0xFFC0E7D8.toInt())
+            KeyboardTheme(0xFFFFFBF4.toInt(), 0xFFFFFFFF.toInt(), 0xFFFFE8B3.toInt(),
+                0xFF29231B.toInt(), 0xFF8A5900.toInt(), 0xFF8A5900.toInt(),
+                0xFFFFFFFF.toInt(), 0xFF796F60.toInt())
         }
     }
 }
