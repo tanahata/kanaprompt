@@ -1,5 +1,12 @@
 # 実機検証記録
 
+## v1.0.6（山吹色UI・署名鍵切替の公開候補／未検証）
+
+- 公開準備ブランチで`jp.kanaprompt.ime`、IMEサービス`KanaPromptImeService`を維持したまま`versionName=1.0.6`／`versionCode=23`を設定。配色定義とアイコンの背景・線色、押下文字色・キー輪郭のみ変更。キー配列・寸法・入力処理は変更していません。
+- 実装予定／確認先：[EXIF Marginと共通の山吹色パレット](https://www.notion.so/4131c8ba2894815799e8f54387bf925d)（ブランド`#D99A22`）。文字・輪郭のコントラストはJavaの`KeyboardThemeCheck`で静的検証する設計です。**この記録時点ではJava検査・Androidビルドは未実行**。
+- Macでdebug/releaseビルド・両lint・KeyboardLayoutCheck・CursorMovementCheck・KeyboardThemeCheckを実行。Android 16のAQUOSで専用鍵署名APKを新規導入し、IME有効化とかな・濁点・削除・カーソル、ライト／ダーク、キー押下・5方向プレビュー、アイコンの視認性を確認して記録してください。鍵のバックアップ・証明書・旧版アンインストールの手順は[署名手順](SIGNING.md)参照。
+- 上記が完了するまではPRをDraftのまま保ち、v1.0.6のtag／Releaseは公開しません。GitHub Actionsは手動実行専用で今回使用していません。
+
 ## v1.0.5（公開版／新しいアプリID・2026-11-08）
 
 [GitHub Release v1.0.5](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.5)は、新しい`applicationId=jp.kanaprompt.ime`と`KanaPromptImeService`で公開済み。PR #5を`main`へマージし、タグに対応するソースからAPKをビルド・署名して公開しました。配布物はAPK・ソースZIP・SHA256SUMSです。

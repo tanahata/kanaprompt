@@ -12,11 +12,12 @@ IMEには通常のActivityがありません。インストール後、Android�
 
 ## 回帰チェック
 
-ビルド後、Javaのソース起動で配列・モード切替用の `checks/KeyboardLayoutCheck.java` と、カーソル移動用の `checks/CursorMovementCheck.java` を実行します。クラスパスに `app/build/tmp/kotlin-classes/debug` とKotlin stdlib 2.0.21のJARを指定してください。
+ビルド後、Javaのソース起動で配列・モード切替用の `checks/KeyboardLayoutCheck.java` と、カーソル移動用の `checks/CursorMovementCheck.java`、v1.0.6の配色検査 `checks/KeyboardThemeCheck.java` を実行します。クラスパスに `app/build/tmp/kotlin-classes/debug` とKotlin stdlib 2.0.21のJARを指定してください。
 
 ```sh
 java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" checks/KeyboardLayoutCheck.java
 java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" checks/CursorMovementCheck.java
+java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" checks/KeyboardThemeCheck.java
 ```
 
 ## GitHubでの任意検査
@@ -32,6 +33,13 @@ GitHub Actionsはpush・PR更新では自動実行しません。必要性が明
 - 旧識別子のローカルv1.0.5候補版については[検証記録](TESTING.md)に24件の局所検証履歴を保持しています。新識別子版で24件すべてを再実行したという意味ではありません。
 
 以降の更新時も`git status --short`で未コミット差分を保護し、実際の署名APK・タグ付きソース・ZIP・SHA256SUMSの整合性を確認してから配布してください。診断用PR #6のコードは製品にマージしません。IME画面へバージョン番号は表示せず、Androidのアプリ情報で確認します。
+
+## v1.0.6公開候補の配色・専用署名鍵への切替
+
+- [v1.0.6公開準備PR（Draft）](https://github.com/tanahata/kanaprompt/pulls)では、EXIF Marginの山吹色 `#D99A22` をキーボードの補助キー・操作色・押下色とアプリアイコンに反映します。文字キーを中立色に維持し、文字4.5:1／輪郭3:1以上のコントラストを目標にします。
+- `app/build.gradle.kts`をv1.0.6／23へ更新するのは**候補ブランチのみ**。配色の単独の静的検査とMacビルド・両lint・回帰・AQUOSでライト／ダークの見た目、押下・5方向ガイド、入力・削除・カーソルを確認してからマージする。
+- 同じv1.0.6で[専用署名鍵移行](SIGNING.md)を実施。旧証明書版の上書き更新はできないため、別IMEへ切り替えたうえで旧版を削除し新APKを導入する。[Issue #7](https://github.com/tanahata/kanaprompt/issues/7)で鍵と実機の確認を追跡する。
+- 現段階で署名鍵の生成・Macビルド・実機検証・Release公開は**未実施**。既存v1.0.5のAPK・タグは変更しない。
 
 ## v1.0.5の署名（履歴）と次期公開版
 
