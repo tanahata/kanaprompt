@@ -33,9 +33,11 @@ GitHub Actionsはpush・PR更新では自動実行しません。必要性が明
 
 以降の更新時も`git status --short`で未コミット差分を保護し、実際の署名APK・タグ付きソース・ZIP・SHA256SUMSの整合性を確認してから配布してください。診断用PR #6のコードは製品にマージしません。IME画面へバージョン番号は表示せず、Androidのアプリ情報で確認します。
 
-## 署名
+## v1.0.5の署名（履歴）と次期公開版
 
-公開APKはreleaseビルドを旧版と同じ証明書で署名しています。旧開発版との更新互換性を優先しているため、証明書の名義はAndroid Debugです。APK自体はdebuggableではありません。これはGoogle Play向けの新規署名設計ではありません。
+**v1.0.6からの専用公開鍵への切替計画・Macでの手順：[公開署名鍵の管理と切替](SIGNING.md)／[Issue #7](https://github.com/tanahata/kanaprompt/issues/7)**。新鍵は生成・バックアップ・署名・実機確認が完了するまで公開版に適用しません。
+
+v1.0.5の公開APKはreleaseビルドを旧版と同じ証明書で署名しています。旧開発版との更新互換性を優先しているため、証明書の名義はAndroid Debugです。APK自体はdebuggableではありません。これはGoogle Play向けの新規署名設計ではありません。
 
 公開APKの証明書SHA-256:
 `5a6955d60f416ca2ad93a8fbda52cbf33b6837912a26f7e24f3d1c326ffd8bb7`
