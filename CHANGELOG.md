@@ -1,10 +1,12 @@
 # 変更履歴
 
-## v1.0.6 — 山吹色UIと専用署名鍵への移行（公開準備中・未検証）
+## v1.0.6 — 山吹色UIと専用署名鍵への移行（2026-11-10公開）
 
-- EXIF Marginと共通のブランド山吹色`#D99A22`に統一するため、キーボードのライト／ダーク配色、操作キー・押下時の文字色、キー輪郭、アプリアイコン背景・前景色を変更。キー配列・寸法・入力機能は維持。
-- 署名鍵を既存のAndroid Debug名義の証明書からKanaPrompt専用の長期release鍵へ変更予定。旧署名v1.0.5からの通常の上書き更新は不可。別IMEを有効化し、旧アプリを削除して再インストール・再有効化する必要があります。アプリID`jp.kanaprompt.ime`は維持。
-- 公開準備ブランチでは`versionName=1.0.6`・`versionCode=23`を設定。**Macビルド・lint・回帰検査・新署名APK作成・実機試験・v1.0.6公開は未実施**。公開済みv1.0.5には変更なし。
+- EXIF Marginと共通の山吹色`#D99A22`を、キーボードのライト／ダーク配色、操作キー・押下時の文字色、キー輪郭、アプリアイコン背景・前景色に適用。キー配列・寸法・入力機能は変更していません。
+- 旧`Android Debug`名義の署名証明書から、KanaPrompt専用のrelease署名鍵へ移行しました。アプリID`jp.kanaprompt.ime`は維持。<b>v1.0.5以前から通常の上書き更新は不可</b>なので、別IMEを有効化→旧KanaPromptを削除→新版インストール→再有効化・選択が必要です。以降は同じ専用鍵で更新します。
+- v1.0.6（versionCode 23）として[公開](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.6)。Macのdebug／releaseビルド、両lint（エラー0・警告4）、KeyboardLayoutCheck・CursorMovementCheck・KeyboardThemeCheckに合格。GitHub Actionsは使用していません。
+- AQUOS R9 Pro（Android 16）に新署名APKをインストールし、IME有効化・かなフリック・濁点／半濁点／小文字・削除・カーソル・Gboard切替を確認。山吹色のライト／ダーク表示、押下・フリック表示とアイコンも確認。APK・ソースZIP・SHA256SUMSのダウンロードと照合に成功しました。
+- 公開後、ユーザーは新版での通常動作を確認し、不具合を報告していません。検証範囲は[記録](docs/TESTING.md)を参照してください。
 
 ## v1.0.5 — カーソル・削除操作の精度改善、内部名称統一（2026-11-08公開）
 

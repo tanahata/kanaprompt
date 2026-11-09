@@ -25,3 +25,4 @@ jobs:
           test -n "$jar"
           java -cp "app/build/tmp/kotlin-classes/debug:$jar" checks/KeyboardLayoutCheck.java
           java -cp "app/build/tmp/kotlin-classes/debug:$jar" checks/CursorMovementCheck.java
+          java -cp "app/build/tmp/kotlin-classes/debug:$jar" checks/KeyboardThemeCheck.java

@@ -34,20 +34,12 @@ GitHub Actionsはpush・PR更新では自動実行しません。必要性が明
 
 以降の更新時も`git status --short`で未コミット差分を保護し、実際の署名APK・タグ付きソース・ZIP・SHA256SUMSの整合性を確認してから配布してください。診断用PR #6のコードは製品にマージしません。IME画面へバージョン番号は表示せず、Androidのアプリ情報で確認します。
 
-## v1.0.6公開候補の配色・専用署名鍵への切替
+## v1.0.6 公開・署名切替の確認記録（2026-11-10）
 
-- [v1.0.6公開準備PR（Draft）](https://github.com/tanahata/kanaprompt/pulls)では、EXIF Marginの山吹色 `#D99A22` をキーボードの補助キー・操作色・押下色とアプリアイコンに反映します。文字キーを中立色に維持し、文字4.5:1／輪郭3:1以上のコントラストを目標にします。
-- `app/build.gradle.kts`をv1.0.6／23へ更新するのは**候補ブランチのみ**。配色の単独の静的検査とMacビルド・両lint・回帰・AQUOSでライト／ダークの見た目、押下・5方向ガイド、入力・削除・カーソルを確認してからマージする。
-- 同じv1.0.6で[専用署名鍵移行](SIGNING.md)を実施。旧証明書版の上書き更新はできないため、別IMEへ切り替えたうえで旧版を削除し新APKを導入する。[Issue #7](https://github.com/tanahata/kanaprompt/issues/7)で鍵と実機の確認を追跡する。
-- 現段階で署名鍵の生成・Macビルド・実機検証・Release公開は**未実施**。既存v1.0.5のAPK・タグは変更しない。
-
-## v1.0.5の署名（履歴）と次期公開版
-
-**v1.0.6からの専用公開鍵への切替計画・Macでの手順：[公開署名鍵の管理と切替](SIGNING.md)／[Issue #7](https://github.com/tanahata/kanaprompt/issues/7)**。新鍵は生成・バックアップ・署名・実機確認が完了するまで公開版に適用しません。
-
-v1.0.5の公開APKはreleaseビルドを旧版と同じ証明書で署名しています。旧開発版との更新互換性を優先しているため、証明書の名義はAndroid Debugです。APK自体はdebuggableではありません。これはGoogle Play向けの新規署名設計ではありません。
-
-公開APKの証明書SHA-256:
-`5a6955d60f416ca2ad93a8fbda52cbf33b6837912a26f7e24f3d1c326ffd8bb7`
+- [v1.0.6 Release](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.6)公開済み。[PR #8](https://github.com/tanahata/kanaprompt/pull/8)は`main`へマージ済み。アプリID`jp.kanaprompt.ime`、サービス`KanaPromptImeService`、versionName`1.0.6`／versionCode`23`。
+- EXIF Marginと共通の山吹色（`#D99A22`）と専用署名鍵を適用。Macビルド、両lint、3件のJava回帰に合格。AQUOS R9 Proで新しいIMEのインストール・選択、かな入力・修飾・削除・カーソル、ライト／ダークの見た目とアイコンを確認済み。公開後にもユーザーから新版動作確認の報告あり。
+- 署名証明書SHA-256：`453a68447c912cbf9d51bc844571afaf4396ed4ef0b91802da3880c8182697e2`。APKのSHA-256：`706aaafccfc637dba160fe3a4d2b4baec8b978dc47a023f992dd0634c033d7a8`。ReleaseのAPK・ソースZIP・SHA256SUMSはダウンロード照合済み。
+- 旧署名v1.0.5以前からは上書き更新できません。Gboardなど別IMEへ切り替えて旧アプリを削除し、新APKを導入・再有効化してください。v1.0.6以降は**この専用鍵を継続使用**し、再度の署名鍵移行を予定しません。秘密鍵本体とパスワードはGitHubで管理しません。
+- 保管鍵の復元コピーが元と一致することを確認済み。独立先への暗号化・同期は本人の完了報告に基づきます。詳細と将来の更新手順は[署名手順](SIGNING.md)へ。
 
 署名鍵は公開しません。自分でビルド・署名したAPKは公開版へ上書きできない場合があります。鍵、パスワード、ローカル設定、入力文章、端末IDをリポジトリに含めないでください。

@@ -1,11 +1,14 @@
 # 実機検証記録
 
-## v1.0.6（山吹色UI・署名鍵切替の公開候補／未検証）
+## v1.0.6（公開済み・新署名・2026-11-10）
 
-- 公開準備ブランチで`jp.kanaprompt.ime`、IMEサービス`KanaPromptImeService`を維持したまま`versionName=1.0.6`／`versionCode=23`を設定。配色定義とアイコンの背景・線色、押下文字色・キー輪郭のみ変更。キー配列・寸法・入力処理は変更していません。
-- 実装予定／確認先：[EXIF Marginと共通の山吹色パレット](https://www.notion.so/4131c8ba2894815799e8f54387bf925d)（ブランド`#D99A22`）。文字・輪郭のコントラストはJavaの`KeyboardThemeCheck`で静的検証する設計です。**この記録時点ではJava検査・Androidビルドは未実行**。
-- Macでdebug/releaseビルド・両lint・KeyboardLayoutCheck・CursorMovementCheck・KeyboardThemeCheckを実行。Android 16のAQUOSで専用鍵署名APKを新規導入し、IME有効化とかな・濁点・削除・カーソル、ライト／ダーク、キー押下・5方向プレビュー、アイコンの視認性を確認して記録してください。鍵のバックアップ・証明書・旧版アンインストールの手順は[署名手順](SIGNING.md)参照。
-- 上記が完了するまではPRをDraftのまま保ち、v1.0.6のtag／Releaseは公開しません。GitHub Actionsは手動実行専用で今回使用していません。
+- [GitHub Release v1.0.6](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.6)を公開。PR #8を`main`へマージし、対応するAPK・ソースZIP・SHA256SUMSを公開しました。配色・アイコンを山吹色（`#D99A22`）に統一。キー配列・寸法・入力処理・アプリID（`jp.kanaprompt.ime`）は維持しています。
+- Macでdebug／releaseビルド、lintDebug／lintRelease、KeyboardLayoutCheck・CursorMovementCheck・KeyboardThemeCheckに合格。lintは両方ともエラー0・警告4。検証対象の38ソースファイルとPR HEAD、マージ後のツリーの一致を確認。GitHub Actionsは使用せず。
+- KanaPrompt専用の署名鍵でAPKに署名。証明書SHA-256は`453a68447c912cbf9d51bc844571afaf4396ed4ef0b91802da3880c8182697e2`。署名APKのSHA-256は`706aaafccfc637dba160fe3a4d2b4baec8b978dc47a023f992dd0634c033d7a8`。GitHubから配布物をダウンロードしてチェックサムとの照合に成功。
+- AQUOS R9 Pro（Android 16）で別IMEへの切替と旧署名版の削除後、新APKをインストール・有効化・選択。かなフリック、濁点・半濁点・小文字、削除、カーソル、Gboardとの切替を確認。ライト／ダーク、押下文字、左フリック表示、アプリ情報のアイコンも確認しました。
+- **ユーザーの追加確認（2026-11-10）**：新版での動作確認を完了したとの報告。現時点で新たな不具合報告はありません。これは上記の個別操作試験とは別の、通常使用に関する報告です。
+- 鍵の復元先コピーが元と一致することをMacで確認。独立した保管先への暗号化・同期完了は本人報告であり、接続先のクラウド同期をこちらで直接検証したものではありません。
+- **制限**：検証端末はAQUOS R9 Pro。すべての端末・入力先アプリ・TalkBack等の確認が完了したという意味ではありません。v1.0.5の旧署名版には通常の上書きインストールができません。
 
 ## v1.0.5（公開版／新しいアプリID・2026-11-08）
 
