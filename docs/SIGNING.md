@@ -1,4 +1,4 @@
-# KanaPrompt 公開用署名鍵の管理と切替
+# KanaPrompt 公開用署名鍵の管理と更新
 
 **適用対象：v1.0.6（2026-11-10公開済み）以降**  
 **実施履歴：[Issue #7](https://github.com/tanahata/kanaprompt/issues/7)（完了・クローズ）／[v1.0.6 Release](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.6)**
@@ -18,7 +18,7 @@ v1.0.6用の専用署名鍵は作成済みであり、**以下の生成コマン
 - 新証明書SHA-256：`453a68447c912cbf9d51bc844571afaf4396ed4ef0b91802da3880c8182697e2`（RSA 3072bit、期限2059-09-17 UTC）。
 - v1.0.6の署名APK SHA-256：`706aaafccfc637dba160fe3a4d2b4baec8b978dc47a023f992dd0634c033d7a8`。
 
-### 初回生成時のコマンド（履歴・再利用禁止）
+### 初回生成時のコマンド（履歴。再実行しない）
 
 1. 最初に`git status --short`で未コミット変更を確認し保護する。現在の配布版とソースの対応を確認する。
 2. 署名鍵の保存場所を選ぶ。以下は**Gitリポジトリ外**の例。既存のキーストアは決して上書きしない。
@@ -52,24 +52,31 @@ keytool -list -v -keystore "$KEY_FILE" -alias kanaprompt-release
 
 1. Macでソース・変更内容・未コミット差分を確認し、次期版の版番号を前版より大きく設定する。アプリID・IMEコンポーネントを維持し、既存のv1.0.6専用署名鍵を使用する。
 2. `./gradlew :app:assembleDebug :app:assembleRelease :app:lintDebug :app:lintRelease`と、[ビルド手順](BUILD.md)の`KeyboardLayoutCheck`・`CursorMovementCheck`・`KeyboardThemeCheck`を実行。失敗があれば配布を中断。
-3. Android SDK Build-Tools付属の`zipalign`、`apksigner`を使用する。下記は**v1.0.6当時の実行例**であり、将来の更新時は版番号・入出力パスを置き換える。Codexはインストール済みのSDK/Build-Toolsの絶対パスと未署名APKの実在をまず確認する。パスワードを引数、環境変数、ログへ出さず、`apksigner`の対話入力を利用する。
+3. Android SDK Build-Tools付属の`zipalign`、`apksigner`を使用する。下記は**次の公開版で使うための例**であり、実行前に`RELEASE_VERSION`を正しい版番号へ設定する。署名には既存のKanaPrompt専用鍵を使用する。CodexはSDK/Build-Toolsと未署名APKの実在を確認し、既存APKを上書きしない。パスワードを引数、環境変数、ログへ出さず、`apksigner`の対話入力を利用する。
 
 ```sh
-# Macのインストール先に合わせて変更する（例）
+# 例：RELEASE_VERSION=1.0.7 を実行前に設定する（実際の版番号に置き換える）。
+set -eu
+: "${RELEASE_VERSION:?次の公開版番号を RELEASE_VERSION に設定してください}"
 BUILD_TOOLS="$HOME/Library/Android/sdk/build-tools/35.0.0"
 UNSIGNED_APK="app/build/outputs/apk/release/app-release-unsigned.apk"
 KEY_FILE="$HOME/Library/Application Support/KanaPrompt/Signing/KanaPrompt-release.p12"
-mkdir -p releases/v1.0.6
-"$BUILD_TOOLS/zipalign" -v 4 "$UNSIGNED_APK" "releases/v1.0.6/KanaPrompt-v1.0.6-aligned.apk"
+OUT_DIR="releases/v${RELEASE_VERSION}"
+APK="$OUT_DIR/KanaPrompt-v${RELEASE_VERSION}.apk"
+ALIGNED="$OUT_DIR/KanaPrompt-v${RELEASE_VERSION}-aligned.apk"
+if [ -e "$APK" ] || [ -e "$ALIGNED" ]; then
+  echo "既存の配布候補を上書きしないため中止します"
+  exit 1
+fi
+mkdir -p "$OUT_DIR"
+"$BUILD_TOOLS/zipalign" -v 4 "$UNSIGNED_APK" "$ALIGNED"
 "$BUILD_TOOLS/apksigner" sign \
   --ks "$KEY_FILE" --ks-key-alias kanaprompt-release \
-  --out "releases/v1.0.6/KanaPrompt-v1.0.6.apk" \
-  "releases/v1.0.6/KanaPrompt-v1.0.6-aligned.apk"
-"$BUILD_TOOLS/apksigner" verify --verbose --print-certs \
-  "releases/v1.0.6/KanaPrompt-v1.0.6.apk"
+  --out "$APK" "$ALIGNED"
+"$BUILD_TOOLS/apksigner" verify --verbose --print-certs "$APK"
 ```
 
-4. 署名済みAPKの証明書SHA-256と新キーストアの証明書を比較。**旧公開版のfingerprint `5a6955d60f416ca2ad93a8fbda52cbf33b6837912a26f7e24f3d1c326ffd8bb7`とは異なる**ことも確認する。APKのアプリID・版番号・`debuggable=false`・IMEサービス名を`aapt`や`apkanalyzer`で確認。未署名APKや中間のaligned APKを公開しない。
+4. 署名済みAPKの証明書SHA-256が、**v1.0.6と同じ既存の専用証明書 `453a68447c912cbf9d51bc844571afaf4396ed4ef0b91802da3880c8182697e2`と一致**することを確認する。旧v1.0.5の証明書とは異なることだけでは不十分。アプリID・版番号・`debuggable=false`・IMEサービス名を`aapt`や`apkanalyzer`で確認。未署名APKや中間のaligned APKを公開しない。
 5. **初回のv1.0.6移行時のみ**、別IMEを先に有効化して旧署名KanaPromptをアンインストールし、新APKを導入・有効化した。以降の同一鍵による更新では通常の上書き更新が可能で、毎回アンインストールする必要はない。更新ごとにかなフリック、濁点、削除、カーソル、IME切替を実機で確認する。**ライト／ダークの山吹色UI、押下文字と選択面の視認性、フリックガイド、山吹色アプリアイコンも確認する。**テスト用文字列に個人情報を使わない。
 6. 全検証後、公開するソースコミットを確定し、対応するソースZIPとSHA256SUMSを生成・照合して新しいReleaseに登録する。**署名変更による再インストールはv1.0.6への移行時に限る**。旧版のタグ・APKは履歴として維持する。
 

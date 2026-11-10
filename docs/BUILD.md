@@ -24,22 +24,18 @@ java -cp "app/build/tmp/kotlin-classes/debug:/path/to/kotlin-stdlib-2.0.21.jar" 
 
 GitHub Actionsはpush・PR更新では自動実行しません。必要性が明確なときだけActions画面から手動で `Android checks` を実行します。通常はMacのローカル環境でGradleビルド・lint・回帰チェックを行い、実施できなかった項目は未検証と記録します。手動実行時もArtifactはアップロードせず、Gradleキャッシュを保存しません。CIはAPKの公開署名・配布や実機操作を行いません。実機確認の範囲は[検証記録](TESTING.md)を参照してください。
 
-## v1.0.5 公開・移行の確認記録（2026-11-08）
+## 今後の更新・配布手順
 
-- [v1.0.5 Release](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.5)は公開済み。PR #5を`main`へマージし、新しい`applicationId=jp.kanaprompt.ime`、IMEサービス`jp.kanaprompt.ime.KanaPromptImeService`、版番号`versionName=1.0.5`／`versionCode=22`を採用。
-- 公開APKはタグに対応するソースからビルドし、既存の署名証明書で署名。Macでdebug/releaseビルド、両lint、KeyboardLayoutCheck・CursorMovementCheckに成功。AQUOS R9 Pro（Android 16）で新IMEの導入・有効化・選択・かな入力・削除・カーソルを確認しました。
-- APK、対応するソースZIPとSHA256SUMSをReleaseへ登録。公開時のGitHub Actionsは不使用。
-- v1.0.3以前の`jp.kanaflick.ime`とは別アプリとして共存可能で、上書き更新はできません。新IMEを有効化・選択し、入力確認後に旧版を必要に応じて削除してください。ユーザーは新KanaPromptでの通常入力を確認し、重複する旧KanaFlickを手動削除済みです。
-- 旧識別子のローカルv1.0.5候補版については[検証記録](TESTING.md)に24件の局所検証履歴を保持しています。新識別子版で24件すべてを再実行したという意味ではありません。
+1. `git status --short`でローカル変更を確認・保護し、作業対象のコミットと`main`の差分を把握する。公開前に版番号を更新し、`applicationId=jp.kanaprompt.ime`と`KanaPromptImeService`を維持する。
+2. 上記のGradleビルド・lintと3種類の回帰チェックを実行する。入力処理を変更した場合は影響箇所を実機で再確認する。検査の合否と対象コミットを[検証記録](TESTING.md)に残す。
+3. **v1.0.6以降と同じKanaPrompt専用鍵**でrelease APKを署名し、証明書・アプリID・版番号・`debuggable=false`を検証する。新しい鍵を作らない。コマンドと保管上の注意は[署名手順](SIGNING.md)を参照する。
+4. Android実機でIMEのインストール／更新、有効化・選択、かな入力・削除・カーソル・IME切替を確認する。UI変更がある場合はライト／ダークと押下表示も確認する。通常の同一署名更新では、旧版を毎回アンインストールする必要はない。
+5. 検証済みソースを`main`へ反映し、公開するソースとタグ・APK・ソースZIPの整合を確認する。必要なら確定ソースから再ビルド・再署名する。`SHA256SUMS`を生成し、GitHub ReleaseへAPK・対応するソースZIP・チェックサムを登録してダウンロード照合する。公開済みのタグやアセットは差し替えない。
 
-以降の更新時も`git status --short`で未コミット差分を保護し、実際の署名APK・タグ付きソース・ZIP・SHA256SUMSの整合性を確認してから配布してください。診断用PR #6のコードは製品にマージしません。IME画面へバージョン番号は表示せず、Androidのアプリ情報で確認します。
+GitHub Actionsは通常不要です。秘密鍵、パスワード、個人的な入力内容、端末ID、ローカル設定をリポジトリや配布ZIPに含めないでください。IME上には版番号を表示せず、Androidのアプリ情報で確認します。
 
-## v1.0.6 公開・署名切替の確認記録（2026-11-10）
+## 過去の公開と移行（履歴）
 
-- [v1.0.6 Release](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.6)公開済み。[PR #8](https://github.com/tanahata/kanaprompt/pull/8)は`main`へマージ済み。アプリID`jp.kanaprompt.ime`、サービス`KanaPromptImeService`、versionName`1.0.6`／versionCode`23`。
-- EXIF Marginと共通の山吹色（`#D99A22`）と専用署名鍵を適用。Macビルド、両lint、3件のJava回帰に合格。AQUOS R9 Proで新しいIMEのインストール・選択、かな入力・修飾・削除・カーソル、ライト／ダークの見た目とアイコンを確認済み。公開後にもユーザーから新版動作確認の報告あり。
-- 署名証明書SHA-256：`453a68447c912cbf9d51bc844571afaf4396ed4ef0b91802da3880c8182697e2`。APKのSHA-256：`706aaafccfc637dba160fe3a4d2b4baec8b978dc47a023f992dd0634c033d7a8`。ReleaseのAPK・ソースZIP・SHA256SUMSはダウンロード照合済み。
-- 旧署名v1.0.5以前からは上書き更新できません。Gboardなど別IMEへ切り替えて旧アプリを削除し、新APKを導入・再有効化してください。v1.0.6以降は**この専用鍵を継続使用**し、再度の署名鍵移行を予定しません。秘密鍵本体とパスワードはGitHubで管理しません。
-- 保管鍵の復元コピーが元と一致することを確認済み。独立先への暗号化・同期は本人の完了報告に基づきます。詳細と将来の更新手順は[署名手順](SIGNING.md)へ。
+- **v1.0.5（2026-11-08）**：旧`jp.kanaflick.ime`から`jp.kanaprompt.ime`へアプリIDを変更。旧版とは別アプリとしてインストール。[Release](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.5)・[実機検証](TESTING.md)に履歴を保持。
+- **v1.0.6（2026-11-10）**：山吹色UIの採用とKanaPrompt専用署名鍵への一度限りの移行。旧署名版からは再インストールが必要。以後は同じ鍵を継続使用する。[Release](https://github.com/tanahata/kanaprompt/releases/tag/v1.0.6)・[署名記録](SIGNING.md)・[実機検証](TESTING.md)を参照。
 
-署名鍵は公開しません。自分でビルド・署名したAPKは公開版へ上書きできない場合があります。鍵、パスワード、ローカル設定、入力文章、端末IDをリポジトリに含めないでください。

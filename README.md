@@ -65,7 +65,8 @@ Gboardを参考にした配列・表示がありますが、Googleと関係の�
 
 ## 開発・ライセンス
 
-- [ビルド手順](docs/BUILD.md)
+- [ビルド・検証・配布の手順](docs/BUILD.md)
+- [公開署名鍵の管理・更新手順](docs/SIGNING.md)
 - [実機検証の範囲と制限](docs/TESTING.md)
 - [lint警告と対応方針](docs/LINT.md)
 - [変更履歴](CHANGELOG.md)
